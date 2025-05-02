@@ -2,31 +2,58 @@ import streamlit as st
 import pandas as pd
 from googletrans import Translator
 
-# Load crop disease dataset
-df = pd.read_csv("C:/Users/karko/OneDrive/Desktop/Book1.csv")
+# Load the dataset from GitHub
+url = "https://raw.githubusercontent.com/kark1982/agricultural-chatbot/main/Book1.csv"
+df = pd.read_csv(url)
 
+# Ensure column names are correctly formatted
+df.columns = df.columns.str.strip()
+
+# Initialize Translator
 translator = Translator()
 
-# Supported languages
-language_codes = {
-    "english": "en", "twi": "tw", "ga": "gaa", "ewe": "ee", "hausa": "ha"
+# Title of the chatbot
+st.title("🌱 Agricultural Chatbot for Ghanaian Farmers")
+
+# Select Language
+languages = {
+    "English": "en",
+    "Twi": "tw",
+    "Hausa": "ha",
+    "Ewe": "ee",
+    "French": "fr"
 }
+selected_lang = st.selectbox("Choose Language", list(languages.keys()))
 
-def get_crop_disease_info(query):
-    row = df[df.apply(lambda x: x["Crop"].lower() in query and x["Disease"].lower() in query, axis=1)]
-    return row.to_dict(orient="records")[0] if not row.empty else {"response": "Crop/disease info not found."}
+# User Inputs for Crop & Disease
+crop_input = st.text_input("Enter the crop name:")
+disease_input = st.text_input("Enter the disease affecting the crop:")
 
-# Streamlit UI
-st.title("🌾 Agricultural Chatbot for Farmers in Ghana")
-st.write("Ask about crop diseases and solutions!")
-
-user_input = st.text_input("Enter your crop disease query:")
-language = st.selectbox("Choose language:", list(language_codes.keys()))
-
-if st.button("Get Info"):
-    response = get_crop_disease_info(user_input)
+if crop_input and disease_input:
+    # Normalize user inputs
+    crop_query = crop_input.lower().strip()
+    disease_query = disease_input.lower().strip()
     
-    if language != "english":
-        response = {key: translator.translate(value, dest=language_codes[language]).text for key, value in response.items()}
-    
-    st.write(response)
+    # Search dataset for matching crop and disease
+    row = df[(df["Crop"].str.lower().str.strip() == crop_query) & 
+             (df["Disease"].str.lower().str.strip() == disease_query)]
+
+    if row.empty:
+        st.write("❌ Sorry, no information found for this crop/disease.")
+    else:
+        # Retrieve disease information
+        cause = row.iloc[0]["Cause"]
+        symptoms = row.iloc[0]["Symptoms"]
+        solution = row.iloc[0]["Solution"]
+        
+        # Translate information to the selected language
+        translated_cause = translator.translate(cause, dest=languages[selected_lang]).text
+        translated_symptoms = translator.translate(symptoms, dest=languages[selected_lang]).text
+        translated_solution = translator.translate(solution, dest=languages[selected_lang]).text
+        
+        # Display the results
+        st.write(f"🌿 *Crop:* {crop_input}")
+        st.write(f"🦠 *Disease:* {disease_input}")
+        st.write(f"⚠ *Cause ({selected_lang}):* {translated_cause}")
+        st.write(f"🤒 *Symptoms ({selected_lang}):* {translated_symptoms}")
+        st.write(f"💊 *Solution ({selected_lang}):* {translated_solution}")
