@@ -3,7 +3,7 @@ import pandas as pd
 from googletrans import Translator
 
 # Load the dataset from GitHub
-url = "https://github.com/kark1982/AGRICULTURAL-CHATBOT-FOR-BRIGHT-AND-FIRDAUS/blob/main/Book1.csv"
+url = "https://raw.githubusercontent.com/kark1982/agricultu/main/Book1.csv"
 df = pd.read_csv(url)
 
 # Ensure column names are correctly formatted
@@ -13,20 +13,17 @@ df.columns = df.columns.str.strip()
 translator = Translator()
 
 # Title of the chatbot
-st.title("🌱 Agricultural Chatbot for Ghanaian Farmers")
+st.title("🌱 Agricultural Chatbot for Farmers")
 
 # Select Language
 languages = {
     "English": "en",
-    "Twi": "tw",
     "Hausa": "ha",
-    "Ewe": "ee",
     "French": "fr"
 }
 selected_lang = st.selectbox("Choose Language", list(languages.keys()))
 
 # User Inputs for Crop & Disease
-crop_input = st.text_input("Enter the crop name:")
 disease_input = st.text_input("Enter the disease affecting the crop:")
 
 if crop_input and disease_input:
@@ -39,7 +36,7 @@ if crop_input and disease_input:
              (df["Disease"].str.lower().str.strip() == disease_query)]
 
     if row.empty:
-        st.write("❌ Sorry, no information found for this crop/disease.")
+        st.write("Sorry, no information found for this disease.")
     else:
         # Retrieve disease information
         cause = row.iloc[0]["Cause"]
@@ -52,8 +49,6 @@ if crop_input and disease_input:
         translated_solution = translator.translate(solution, dest=languages[selected_lang]).text
         
         # Display the results
-        st.write(f"🌿 *Crop:* {crop_input}")
-        st.write(f"🦠 *Disease:* {disease_input}")
-        st.write(f"⚠ *Cause ({selected_lang}):* {translated_cause}")
-        st.write(f"🤒 *Symptoms ({selected_lang}):* {translated_symptoms}")
-        st.write(f"💊 *Solution ({selected_lang}):* {translated_solution}")
+        (f"Oh no! {Disease} can really affect your crops. This disease mainly affect {Crop}. "
+         f"It's usually caused by {Cause}. You might notice symptoms like {Symptoms}. "
+         f"But the good news is that you can manage it by using {Solution}. ")
