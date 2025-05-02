@@ -3,7 +3,7 @@ import pandas as pd
 from googletrans import Translator
 
 # Load the dataset from GitHub
-url = "https://raw.githubusercontent.com/kark1982/agricultu/main/Book1.csv"
+url = "https://github.com/kark1982/AGRICULTURAL-CHATBOT-FOR-BRIGHT-AND-FIRDAUS/blob/main/Book1.csv"
 df = pd.read_csv(url)
 
 # Ensure column names are correctly formatted
